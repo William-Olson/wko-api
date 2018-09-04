@@ -4,6 +4,7 @@ module.exports = Object.assign(
   // external configs
   require('./server'),
   require('./db'),
+  require('./es'),
 
   // build info
   { build: require('./build-info.json') },

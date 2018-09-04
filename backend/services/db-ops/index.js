@@ -9,15 +9,15 @@ const path = require('path');
 */
 module.exports = class DbOpsService
 {
-  constructor(db, container, logger)
+  constructor(db, container, logger, stackConfig, es)
   {
     this._logger = logger('db:migrations');
     this.um = new Umzug({
       storage: path.join(__dirname, './MigrationStorage.js'),
-      storageOptions: { db, logger },
+      storageOptions: { db, logger, stackConfig },
       migrations: {
         path: path.join(__dirname, './migrations'),
-        wrap: fn => async () => await fn({ db, container, logger: this._logger })
+        wrap: fn => async () => await fn({ db, container, stackConfig, es, logger: this._logger })
       }
     });
   }

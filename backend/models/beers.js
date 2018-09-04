@@ -40,4 +40,21 @@ module.exports = class BeersApi {
 
   }
 
+  async getBeerTypeById(id)
+  {
+
+    if (!id) {
+      throw new Error(`Can't fetch beer style, Missing id param`);
+    }
+
+    return await this._knex.table('beer_types')
+    .where('id', id);
+
+  }
+
+  async getAllStyles()
+  {
+    return await this._knex.table('beer_types');
+  }
+
 }

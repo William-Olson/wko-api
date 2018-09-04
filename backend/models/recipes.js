@@ -97,4 +97,16 @@ module.exports = class RecipesApi {
 
   }
 
+  async getIngredientById(id)
+  {
+
+    if (!id) {
+      throw new Error('Can\'t fetch ingredient, Missing id param');
+    }
+
+    return await this._knex.table('ingredients')
+      .where('id', id);
+
+  }
+
 }

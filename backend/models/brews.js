@@ -150,4 +150,16 @@ module.exports = class BrewsApi {
       .where('brew_id', id);
   }
 
+  async getBrewNoteById(id)
+  {
+    if (!id) {
+      throw new Error('Missing id param for retrieving brew_notes');
+    }
+
+    return await this._knex
+      .table('brew_notes')
+      .where('id', id);
+
+  }
+
 }

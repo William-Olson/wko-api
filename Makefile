@@ -6,7 +6,7 @@ default:
 	@make -s log-msg
 
 run:
-	docker-compose up -d db api haproxy
+	docker-compose up -d es kibana db api haproxy
 	docker-compose run --no-deps --rm db-ops npm start
 
 build:

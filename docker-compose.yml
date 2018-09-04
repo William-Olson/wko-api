@@ -11,8 +11,9 @@ api:
   environment:
     - DEBUG=billy*,db*,server*,route*,ref*,app*
     - DEBUG_COLORS=true
-    - SERVICES=server
+    - SERVICES=es,server
     - 'DB_URL=postgres://dev:dev@db:5432/dev'
+    - 'ES_URL=http://es:9200'
     - VIRTUAL_HOST=*,https://*
     - JWT_SECRET=dev-secret
   ports:
@@ -21,19 +22,22 @@ api:
     - ./backend/:/opt/backend/container
   links:
     - db
+    - es
 
 db-ops:
   image: willko/wko-api:latest
   command: echo 'no-op'
   environment:
-    - DEBUG=billy*,db*
+    - DEBUG=billy*,db*,es*
     - DEBUG_COLORS=true
-    - SERVICES=db-ops
+    - SERVICES=es,db-ops
     - 'DB_URL=postgres://dev:dev@db:5432/dev'
+    - 'ES_URL=http://es:9200'
   volumes:
     - ./backend/:/opt/backend/container
   links:
     - db
+    - es
 
 db:
   image: postgres:9.6
@@ -43,3 +47,21 @@ db:
     - POSTGRES_DB=dev
     - POSTGRES_PASSWORD=dev
     - POSTGRES_USER=dev
+
+es:
+  image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0
+  environment:
+    - 'discovery.type=single-node'
+  ports:
+    - 9200:9200
+    - 9300:9300
+
+kibana:
+  image: docker.elastic.co/kibana/kibana:6.4.0
+  environment:
+    SERVER_NAME: kibana
+    ELASTICSEARCH_URL: http://es:9200
+  links:
+    - es
+  ports:
+    - 5601:5601
