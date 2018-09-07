@@ -26,8 +26,9 @@ module.exports = class BeersRoutes
 
   async search(req)
   {
+
     const term = req.query.term;
-    return await this._es.search('wko-beer', term);
+    return await this._es.searchAllIndices(term);
 
   }
 };

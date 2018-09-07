@@ -5,13 +5,15 @@
 */
 module.exports = {
 
-    async up({ db, es, logger, stackConfig })
-    {
+  async up({ db, es, logger, stackConfig })
+  {
+    const config = stackConfig.es;
   
     // beers
     const beers = await db.beers.getAll();
+    const beerIndex = config.getIndexForModel('beers');
     for (const b of beers) {
-        await es.index('wko-beer', 'beers', b);
+        await es.index(beerIndex, b);
     }
     logger.log('beers indexed');
 
@@ -30,8 +32,9 @@ module.exports = {
     // beer_styles
 
     const styles = await db.beers.getAllStyles();
+    const beerStyleIndex = config.getIndexForModel('beer_types');
     for (const s of styles) {
-        await es.index('wko-beer', 'beer_styles', s);
+        await es.index(beerStyleIndex, s);
     }
     logger.log('beer_styles indexed');
 
@@ -39,6 +42,6 @@ module.exports = {
   
     //   logger.log('brew_notes indexed');
 
-    }
+  }
 
 };

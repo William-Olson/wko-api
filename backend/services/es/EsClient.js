@@ -12,38 +12,27 @@ module.exports = class EsClient {
     constructor(stackConfig, logger)
     {
 
-        this._TYPES = stackConfig.es.TYPES;
         this._config = stackConfig.es;
         this._logger = logger('es:client');
         this._esClient = new elasticsearch.Client({
           host: this._config.host,
-          //   log: 'off'
+            log: 'error'
         });
 
     }
 
-    async index(index, type, document)
+    async index(index, document)
     {
 
-        if (!this._TYPES[index]) {
+        if (!this._config.indexExists(index)) {
             throw new Error(`Unsupported Index ${index}`);
-        }
-
-        if (!this._TYPES[index].includes(type)) {
-            this._logger.kv('document', document)
-                .kv('index', index)
-                .kv('type', type)
-                .kv('TYPES', this._TYPES[index])
-                .error(`Can't index, unsupported document type: ${type}`);
-            
-            throw new Error(`Unsupported type for index ${index}: ${type}`);
         }
 
         // index the document
         return await this._esClient.create({
             id: document.id,
-            index: `${index}-${type}`,
-            type,
+            index: `${index}`,
+            type: 'default',
             body: document
         });
 
@@ -54,38 +43,66 @@ module.exports = class EsClient {
         // todo
     }
 
-    async search(index, term, from, pageSize)
+    async searchAllIndices(term, from, pageSize)
+    {
+        return await this.searchIndex('_all', term, from, pageSize);
+    }
+
+    async searchIndex(index, term, from, pageSize)
     {
 
       from = from || 0;
       pageSize = pageSize || 500;
 
       const searchParams = {
-        // index: index,
+        index,
         from,
         size: pageSize,
         body: {
           query: {
-            filtered: {
-              query: {
-                match: {
-                    // match the query against all of
-                    // the fields in this index
-                    _all: term
-                }
-              }
-            }
+            term: { name: term }
           }
         }
       };
 
-      const res = this._esClient.search(searchParams);
-      
+      const res = await this._esClient.search(searchParams);
+      // console.log(res);
+
       return {
           results: res.hits.hits,
           page: from + 1,
-          pages: Math.ceil(res.hits.total / perPage)
+          pages: Math.ceil(res.hits.total / pageSize)
       };
+
+    }
+
+    async queryAll()
+    {
+        const res = this._esClient.search({
+            body: {
+                query: {
+                    match_all: { }
+                }
+            }
+        });
+
+        return res;
+    }
+
+    async putMappings(index, type)
+    {
+        const settings = {
+            analysis: {
+                analyzer: {
+                    my_analyzer: {
+                        type: "standard",
+                        "stopwords": "_english_"
+                    }
+                }
+            }
+        };
+
+        // 
 
     }
 
@@ -93,7 +110,7 @@ module.exports = class EsClient {
     {
         const task = async (exit, i) => {
 
-            this._logger.kv('attempt', i).log(`es connection attempt: ${i}`);
+            this._logger.kv('attempt', i).log(`es ping attempt: ${i}`);
             const res = await this._esClient.ping({
               requestTimeout: 1000,
             });
