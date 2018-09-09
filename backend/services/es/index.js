@@ -6,13 +6,16 @@ const EsInflation = require('./EsInflation');
  */
 module.exports = class DataApiService
 {
-  constructor(container)
+  constructor(container, db)
   {
 
     // register the elasticsearch client
     this._esInflation = container.new(EsInflation);
     this._es = container.new(EsClient);
     container.registerValue('es', this._es);
+
+    // expose this on db as well
+    db._es = this._es;
 
   }
 

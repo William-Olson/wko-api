@@ -1,6 +1,9 @@
 const elasticsearch = require('elasticsearch');
 const retry = require('async-retry').default;
+const curry = require('curry');
 
+const indexSettings = require('./index-settings.json');
+const indexMappings = require('./mappings.json');
 
 /*
 
@@ -13,11 +16,23 @@ module.exports = class EsClient {
     {
 
         this._config = stackConfig.es;
-        this._logger = logger('es:client');
+        this._logger = logger('app:es-client');
         this._esClient = new elasticsearch.Client({
           host: this._config.host,
             log: 'error'
         });
+
+        this.getIndexFor = model => this._config.getIndexForModel(model);
+
+        // create an api of index searches by model/index name
+        for (const t of this._config.TYPES) {
+            this._logger.log('Creating ES api for: ' + t.model);
+            this[t.model] = {
+                search: curry(this.searchIndex.bind(this), t.index),
+                index: curry(this.index.bind(this), t.index),
+            };
+            this[t.index] = this[t.model];
+        }
 
     }
 
@@ -29,18 +44,13 @@ module.exports = class EsClient {
         }
 
         // index the document
-        return await this._esClient.create({
+        return await this._esClient.index({
             id: document.id,
             index: `${index}`,
             type: 'default',
             body: document
         });
 
-    }
-
-    async createMappings()
-    {
-        // todo
     }
 
     async searchAllIndices(term, from, pageSize)
@@ -60,49 +70,47 @@ module.exports = class EsClient {
         size: pageSize,
         body: {
           query: {
-            term: { name: term }
+            match: { name: term }
           }
         }
       };
 
       const res = await this._esClient.search(searchParams);
-      // console.log(res);
+
+      if (res.error) {
+        this.logger.kv('index', index).kv('term', term).error(res.error);
+        return { Error: 'An error occurred' };
+      }
 
       return {
-          results: res.hits.hits,
-          page: from + 1,
-          pages: Math.ceil(res.hits.total / pageSize)
+        results: res.hits.hits,
+        page: from + 1,
+        pages: Math.ceil(res.hits.total / pageSize)
       };
 
     }
 
-    async queryAll()
+    async createIndices()
     {
-        const res = this._esClient.search({
-            body: {
-                query: {
-                    match_all: { }
-                }
-            }
-        });
 
-        return res;
-    }
+      const settings = indexSettings.settings;
+      
+      for (const { index } of this._config.TYPES) {
+          const mappings = indexMappings[index];
+          
+          this._logger.log(`creating index ${index}`);
+          await this._esClient.indices.create({ index, body: { settings, mappings } });
 
-    async putMappings(index, type)
-    {
-        const settings = {
-            analysis: {
-                analyzer: {
-                    my_analyzer: {
-                        type: "standard",
-                        "stopwords": "_english_"
-                    }
-                }
-            }
-        };
+        //   this._logger.log(`configuring settings for index ${index}`);
+        //   await this._esClient.indices.putSettings({ index, body: { settings } });
 
-        // 
+        //   this._logger.log(`adding mappings for ${index}`);
+        //   await this._esClient.indices.putMapping({
+        //       index,
+        //       type: 'default',
+        //       body: { mappings }
+        //   });
+      }
 
     }
 

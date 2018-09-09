@@ -1,0 +1,52 @@
+{
+  "beers": {
+    "default": {
+      "properties": {
+        "name": {
+          "type":     "text",
+          "analyzer": "autocomplete"
+        }
+      }
+    }
+  },
+  "brews": {
+    "default": {
+      "properties": {
+        "name": {
+          "type":     "text",
+          "analyzer": "autocomplete"
+        }
+      }
+    }
+  },
+  "recipes": {
+    "default": {
+      "properties": {
+        "name": {
+          "type":     "text",
+          "analyzer": "autocomplete"
+        }
+      }
+    }
+  },
+  "ingredients": {
+    "default": {
+      "properties": {
+        "name": {
+          "type":     "text",
+          "analyzer": "autocomplete"
+        }
+      }
+    }
+  },
+  "beer_styles": {
+    "default": {
+      "properties": {
+        "name": {
+          "type":     "text",
+          "analyzer": "autocomplete"
+        }
+      }
+    }
+  }
+}

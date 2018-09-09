@@ -26,9 +26,13 @@ module.exports = class BeersRoutes
 
   async search(req)
   {
-
-    const term = req.query.term;
-    return await this._es.searchAllIndices(term);
+    try {
+      const term = req.query.term;
+      return await this._es.beers.search(term);
+    }
+    catch(e) {
+      console.error(e);
+    }
 
   }
 };

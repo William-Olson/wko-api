@@ -2,9 +2,9 @@
 module.exports = (oldFn, ...fixedArgs) => {
 
   // return a new function to call with other args
-  return (...newArgs) => {
+  return async (...newArgs) => {
     const allArgs = [ ...fixedArgs, ...newArgs ];
-    oldFn(...allArgs);
+    return await oldFn(...allArgs);
   };
 };
 

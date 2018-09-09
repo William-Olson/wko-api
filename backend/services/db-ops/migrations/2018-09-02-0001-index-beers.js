@@ -8,7 +8,9 @@ module.exports = {
   async up({ db, es, logger, stackConfig })
   {
     const config = stackConfig.es;
-  
+
+    await es.createIndices();
+
     // beers
     const beers = await db.beers.getAll();
     const beerIndex = config.getIndexForModel('beers');
