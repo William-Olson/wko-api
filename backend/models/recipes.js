@@ -49,7 +49,7 @@ module.exports = class RecipesApi {
       throw new Error('Missing ingredients list for recipe creation');
     }
 
-    const recipe = await this._knex
+    const [ recipe ] = await this._knex
     .table('recipes')
     .insert({
       name: data.name,
@@ -61,17 +61,17 @@ module.exports = class RecipesApi {
       throw new Error(`couldn't create recipe: ${data.name}`)
     }
 
-    // add ingredients to recipe
-    for (const ingredientId of data.ingredients) {
-      // create ingredient link
-      await this._knex.table('recipe_ingredients')
-        .insert({
-          recipe_id: recipe.id,
-          ingredient_id: ingredientId
-        });
-    }
+    // add ingredients for recipe
+    await this._knex.table('recipe_ingredients')
+      .insert(data.ingredients.map(id => ({
+        ingredient_id: id,
+        recipe_id: recipe.id
+      })));
 
-    return recipe;
+    const newRecipe = await this.getById(recipe.id);
+    await this._db._es.recipes.index(newRecipe);
+
+    return newRecipe;
 
   }
 
@@ -87,13 +87,21 @@ module.exports = class RecipesApi {
       throw new Error(`Can't create ingredient ${data.name}. Missing type_id!`);
     }
 
-    return await this._knex
+    const [ id ] = await this._knex
       .table('ingredients')
       .insert({
         name: data.name,
         cost: data.cost,
         type_id: data.type_id
-      });
+      }).returning('id');
+    
+    if (!id) {
+      throw new Error('Couldn\'t create ingredient');
+    }
+
+    const ingredient = await this.getIngredientById(id);
+    await this._es.ingredients.index(ingredient);
+    return ingredient;
 
   }
 

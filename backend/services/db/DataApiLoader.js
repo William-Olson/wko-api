@@ -42,6 +42,9 @@ module.exports = class DataApiLoader
       const M = require(path.join(DATA_API_PATH, file));
       const name = scopeName(file);
       const m = this._container.new(M);
+      
+      // add _db prop to model instance
+      m._db = this._db;
 
       // below might be overboard injection but w/e
       this._container.registerValue(name, m);

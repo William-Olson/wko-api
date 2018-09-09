@@ -6,7 +6,7 @@ module.exports = (fn, info, { logger }) => {
 
   const name = `${info.routeClass}.${info.handler}`;
   const route = `${info.method.toUpperCase()}: '${info.fullPath}'`;
-  setupLogger = setupLogger || logger('route-harness');
+  setupLogger = setupLogger || logger('app:route-harness');
 
   setupLogger.log(`mapped | ${name}, ${route}`);
 

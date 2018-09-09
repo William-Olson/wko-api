@@ -5,15 +5,18 @@
 */
 module.exports = class BrewsRoutes
 {
-  constructor(db, harness)
+  constructor(db, harness, es)
   {
 
     this._db = db;
+    this._es = es;
     const routes = harness(this);
 
+    routes.get('/', this.getBrews);
+    routes.get('/search', this.search);
     routes.get('/:id/notes', this.getBrewNoteByBrewId);
     routes.get('/:id', this.getBrewById);
-    routes.get('/', this.getBrews);
+
     routes.post('/:id/note', this.createNewBrewNote);
     routes.post('/', this.createBrew);
     routes.put('/', this.updateBrew);
@@ -95,6 +98,14 @@ module.exports = class BrewsRoutes
     }
 
     return await this._db.brews.createNewBrewNote(data);
+
+  }
+  
+  async search(req)
+  {
+
+    const term = req.query.term;
+    return await this._es.brews.search(term);
 
   }
 

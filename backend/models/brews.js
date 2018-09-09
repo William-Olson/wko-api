@@ -5,9 +5,10 @@
 */
 module.exports = class BrewsApi {
 
-  constructor(knex)
+  constructor(knex, logger)
   {
     this._knex = knex;
+    this._logger = logger('app:brews-api');
   }
 
   /*
@@ -58,7 +59,8 @@ module.exports = class BrewsApi {
 
   async create(data)
   {
-    return await this._knex
+
+    const [ id ] = await this._knex
       .table('brews')
       .insert({
         name: data.name,
@@ -73,7 +75,16 @@ module.exports = class BrewsApi {
         beer_id: data.beer_id,
         brew_phase_id: data.brew_phase_id,
         recipe_id: data.recipe_id
-      });
+      }).returning('id');
+
+      if (!id) {
+        throw new Error('Couldn\'t create brew');
+      }
+
+      const brew = await this.getById(id);
+      await this._db._es.brews.index(brew);
+      return brew;
+
   }
 
   async update(data)
@@ -82,7 +93,7 @@ module.exports = class BrewsApi {
       throw new Error('Missing id for brew update');
     }
 
-    return await this._knex
+    await this._knex
       .table('brews')
       .where({ id: data.id })
       .update({
@@ -99,6 +110,11 @@ module.exports = class BrewsApi {
         brew_phase_id: data.brew_phase_id,
         recipe_id: data.recipe_id
       });
+
+      const brew = this.getById(data.id);
+      await this._db._es.brews.index(brew);
+      return brew;
+
   }
 
   async createBrewNote(data)
@@ -108,7 +124,7 @@ module.exports = class BrewsApi {
       throw new Error('Missing brew_id for brew_note creation');
     }
 
-    return await this._knex
+    const [ res ] = await this._knex
       .table('brew_notes')
       .insert({
         brew_id: data.brew_number,
@@ -117,9 +133,16 @@ module.exports = class BrewsApi {
         note: data.note,
         value: data.value,
         unit_type_id: data.unit_type_id
-      });
-  }
+      }).returning('*');
 
+      if (!res || !res.id) {
+        throw new Error('Couldn\'t create brew_note');
+      }
+
+      await this._db._es.brew_notes.index(res);
+      return res;
+
+  }
 
   async updateBrewNote(data)
   {
@@ -127,7 +150,7 @@ module.exports = class BrewsApi {
       throw new Error('Missing id for brew_notes update');
     }
 
-    return await this._knex
+    const [ res ] = await this._knex
       .table('brew_notes')
       .where({ id: data.id })
       .update({
@@ -136,7 +159,15 @@ module.exports = class BrewsApi {
         note: data.note,
         value: data.value,
         unit_type_id: data.unit_type_id
-      });
+      }).returning('*');
+
+    if (!res || !res.id) {
+      throw new Error('Couldn\'t update brew_note');
+    }
+
+    await this._db._es.brew_notes.index(res);
+    return res;
+
   }
 
   async getNotesForBrewId(id)
