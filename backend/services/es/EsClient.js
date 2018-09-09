@@ -39,9 +39,18 @@ module.exports = class EsClient {
     async index(index, document)
     {
 
+        if (!document || !document.id) {
+            logger.kv('index', index)
+                  .kv('document', document)
+                  .error('Can\'t index. Bad document param');
+            throw new Error('Bad document param');
+        }
+
         if (!this._config.indexExists(index)) {
             throw new Error(`Unsupported Index ${index}`);
         }
+
+        this._logger.kv('index', index).log(`Indexing document ${document.id}`);
 
         // index the document
         return await this._esClient.index({
@@ -100,16 +109,6 @@ module.exports = class EsClient {
           
           this._logger.log(`creating index ${index}`);
           await this._esClient.indices.create({ index, body: { settings, mappings } });
-
-        //   this._logger.log(`configuring settings for index ${index}`);
-        //   await this._esClient.indices.putSettings({ index, body: { settings } });
-
-        //   this._logger.log(`adding mappings for ${index}`);
-        //   await this._esClient.indices.putMapping({
-        //       index,
-        //       type: 'default',
-        //       body: { mappings }
-        //   });
       }
 
     }
