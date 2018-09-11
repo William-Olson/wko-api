@@ -11,6 +11,7 @@ module.exports = class DataApiService
 
     // register the elasticsearch client
     this._esInflation = container.new(EsInflation);
+    container.registerValue('esInflation', this._esInflation);
     this._es = container.new(EsClient);
     container.registerValue('es', this._es);
 

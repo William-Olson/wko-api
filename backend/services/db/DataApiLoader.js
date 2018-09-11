@@ -45,20 +45,19 @@ module.exports = class DataApiLoader
       
       // add _db prop to model instance
       m._db = this._db;
-
-      // below might be overboard injection but w/e
-      this._container.registerValue(name, m);
-
+      
       this._db[name] = m;
-
+      
       // common lightweight helper
       this._db[name].checkExists = async id => 
-        await this._knex
-          .from(name)
-          .where({ id })
-          .select('id')
-          .first();
+      await this._knex
+      .from(name)
+      .where({ id })
+      .select('id')
+      .first();
 
+      // might be overboard injection but w/e
+      this._container.registerValue(name, m);
     }
 
     this._logger.log('data layer api created successfully!');

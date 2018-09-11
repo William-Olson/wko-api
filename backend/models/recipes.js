@@ -38,6 +38,19 @@ module.exports = class RecipesApi {
 
   }
 
+  async getByIds(ids)
+  {
+
+    if (!ids) {
+      throw new Error('Missing ids param fetching recipe by ids');
+    }
+
+    return await this._knex
+      .table('recipes')
+      .whereIn('id', ids);
+
+  }
+
   async create(data)
   {
 
@@ -113,7 +126,19 @@ module.exports = class RecipesApi {
     }
 
     return await this._knex.table('ingredients')
-      .where('id', id);
+      .where('id', id).first('*');
+
+  }
+
+  async getIngredientsByIds(ids)
+  {
+
+    if (!ids) {
+      throw new Error('Can\'t fetch ingredients, Missing ids param');
+    }
+
+    return await this._knex.table('ingredients')
+      .whereIn('id', ids);
 
   }
 

@@ -12,10 +12,11 @@ const indexMappings = require('./mappings.json');
 */
 module.exports = class EsClient {
 
-    constructor(stackConfig, logger)
+    constructor(stackConfig, esInflation, logger)
     {
 
         this._config = stackConfig.es;
+        this._esInflation = esInflation;
         this._logger = logger('app:es-client');
         this._esClient = new elasticsearch.Client({
           host: this._config.host,
@@ -25,7 +26,7 @@ module.exports = class EsClient {
         this.getIndexFor = model => this._config.getIndexForModel(model);
 
         // create an api of index searches by model/index name
-        for (const t of this._config.TYPES) {
+        for (const t of this._config.getTypes()) {
             this._logger.log('Creating ES api for: ' + t.model);
             this[t.model] = {
                 search: curry(this.searchIndex.bind(this), t.index),
@@ -92,7 +93,7 @@ module.exports = class EsClient {
       }
 
       return {
-        results: res.hits.hits,
+        results: await this._esInflation.inflateDocuments(index, res.hits.hits),
         page: from + 1,
         pages: Math.ceil(res.hits.total / pageSize)
       };
@@ -104,7 +105,7 @@ module.exports = class EsClient {
 
       const settings = indexSettings.settings;
       
-      for (const { index } of this._config.TYPES) {
+      for (const { index } of this._config.getTypes()) {
           const mappings = indexMappings[index];
           
           this._logger.log(`creating index ${index}`);

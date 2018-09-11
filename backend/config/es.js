@@ -1,31 +1,44 @@
+const Immutable = require('immutable');
+
+const TYPES = [
+  Immutable.Map({ index: 'beers', model: 'beers' }),
+  Immutable.Map({ index: 'brews', model: 'brews' }),
+  Immutable.Map({ index: 'recipes', model: 'recipes' }),
+  Immutable.Map({ index: 'ingredients', model: 'ingredients' }),
+  Immutable.Map({ index: 'beer_styles', model: 'beer_types' }),
+  Immutable.Map({ index: 'brew_notes', model: 'brew_notes' }),
+];
+
 module.exports = {
   es: {
       host: process.env.ES_URL,
 
       getIndexForModel(m)
       {
-        const entry = this.TYPES.find(e => e.model === m);
-        return entry ? entry.index : null;
+        const entry = TYPES.find(e => e.get('model') === m);
+        return entry ? entry.get('index') : null;
       },
 
       getIndexModel(i)
       {
-        const entry = this.TYPES.find(e => e.index = i);
-        return entry ? entry.model : null;
+        const entry = TYPES.find(e => e.get('index') === i);
+        console.log('found entry', entry);
+        console.log('entries', JSON.stringify(TYPES, null, 2))
+        return entry ? entry.get('model') : null;
       },
 
       indexExists(i) {
-        return !!(this.TYPES.find(e => e.index = i));
+        return !!(TYPES.find(e => e.get('index') === i));
       },
 
       // index types
-      TYPES: [
-        { index: 'beers', model: 'beers' },
-        { index: 'brews', model: 'brews' },
-        { index: 'recipes', model: 'recipes' },
-        { index: 'ingredients', model: 'ingredients' },
-        { index: 'beer_styles', model: 'beer_types' },
-        { index: 'brew_notes', model: 'brew_notes' }
-      ]
+      getTypes()
+      {
+        return TYPES.map(t => ({
+          index: t.get('index'),
+          model: t.get('model')
+        }));
+      }
+
   }
 };
