@@ -104,10 +104,10 @@ module.exports = class EsClient {
     {
 
       const settings = indexSettings.settings;
-      
+
       for (const { index } of this._config.getTypes()) {
           const mappings = indexMappings[index];
-          
+
           this._logger.log(`creating index ${index}`);
           await this._esClient.indices.create({ index, body: { settings, mappings } });
       }
@@ -122,16 +122,16 @@ module.exports = class EsClient {
             const res = await this._esClient.ping({
               requestTimeout: 1000,
             });
-        
+
             if (!res && Array.isArray(res) && res[0].res) {
                 this._logger.kv('res', res).log('es ping failure');
                 throw new Error('failed to connect to elastic');
             }
-    
+
         };
         const factor = 1.5;
         const maxTimeout = 15000;
-    
+
         this._logger.log('...authenticating with elasticsearch');
         await retry(task, { maxTimeout, factor });
         this._logger.log('elasticsearch connection successful!');

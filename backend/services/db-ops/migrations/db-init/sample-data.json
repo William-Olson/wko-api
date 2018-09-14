@@ -7,6 +7,10 @@
     {
       "name": "vpn",
       "description": "Allows VPN access"
+    },
+    {
+      "name": "brewer-admin",
+      "description": "Brew site admin"
     }
   ],
   "users": [
@@ -68,6 +72,10 @@
     {
       "user_id": 2,
       "flag_id": 1
+    },
+    {
+      "user_id": 1,
+      "flag_id": 3
     }
   ]
 }

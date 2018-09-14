@@ -61,11 +61,11 @@ module.exports = class DbInit
 
   async _importFlags()
   {
-    for (let flag of data.flags) {
-      await this._knex
-        .insert(flag)
-        .into('flags');
-    }
+
+    await this._knex
+      .insert(data.flags)
+      .into('flags');
+
   }
 
   async _importUserFlags()
@@ -75,8 +75,8 @@ module.exports = class DbInit
 
     for (let uf of data.user_flags) {
       await this._knex.insert({
-        flag_id: flagRefs[uf.flag_id],
-        user_id: userRefs[uf.user_id]
+        flag_id: flagRefs[uf.flag_id - 1],
+        user_id: userRefs[uf.user_id - 1]
       })
       .into('user_flags');
     }
