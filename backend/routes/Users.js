@@ -8,6 +8,7 @@ module.exports = class UsersRoutes
     const routes = harness(this);
 
     routes.get('/', this.fetchAll);
+    routes.get('/me', this.me);
     routes.get('/:id', this.fetchById);
     routes.post('/', this.createUser);
     routes.post('/password', this.adminPasswordChange);
@@ -22,6 +23,13 @@ module.exports = class UsersRoutes
   {
 
     return await this._users.getAll();
+
+  }
+
+  async me(req)
+  {
+
+    return await this._db.users.getById(req.user.id);
 
   }
 

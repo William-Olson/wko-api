@@ -50,9 +50,17 @@ module.exports = class UsersApi {
       throw new Error('Missing id param');
     }
 
-    const [ res ] = await this._q(
-      this._knex.raw(`id = ${id}`)
-    );
+    const [ res ] = await this._knex.table('users as u')
+      .leftJoin('user_flags as uf', 'u.id', 'uf.user_id')
+      .leftJoin('flags as f', 'uf.flag_id', 'f.id')
+      .where('u.id', id)
+      .groupBy('u.id')
+      .select([
+        'u.*',
+        this._knex.raw(`COALESCE(
+          json_agg(f.name) FILTER (WHERE f.name IS NOT NULL), '[]'
+        ) AS flags`)
+      ]);
 
     return this._clean(res);
   }
@@ -75,7 +83,7 @@ module.exports = class UsersApi {
   {
     return await this._knex
       .select('*')
-      .from('users')
+      .from('users as u')
       .where(w);
   }
 
@@ -92,7 +100,8 @@ module.exports = class UsersApi {
       last_name: model.last_name,
       username: model.username,
       email: model.email,
-      host_id: model.host_id
+      host_id: model.host_id,
+      flags: model.flags || [ ]
     };
   }
 
