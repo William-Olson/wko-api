@@ -49,6 +49,9 @@ module.exports = class MqttClient {
         const h = this._handlers.get(topic);
 
         if (!h) {
+          setTimeout(() => {
+            this.pub(topic, message);
+          }, 60000 * 2)
           this._logger.error(`Missing handler for topic: ${topic}`);
           return;
         }
