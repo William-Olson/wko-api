@@ -1,5 +1,4 @@
 const MqttClient = require('./MqttClient');
-const JobLoader = require('./JobLoader');
 
 /*
 
@@ -18,9 +17,6 @@ module.exports = class MqttService
     // register service
     container.registerValue('mqtt', this._mqtt);
 
-    // create the job loader
-    this._jobLoader = container.new(JobLoader);
-
   }
 
   async start()
@@ -28,9 +24,6 @@ module.exports = class MqttService
 
     await this._mqtt.authenticate();
     await this._mqtt.listen();
-
-    // wire up the jobs
-    this._jobLoader.registerJobs();
 
   }
 
