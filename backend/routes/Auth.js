@@ -1,15 +1,35 @@
 
 module.exports = class AuthRoutes
 {
-  constructor(harness, db, authManager, logger)
+  constructor(harness, db, authManager, logger, mqtt)
   {
     this._db = db;
     this._authManager = authManager;
     const routes = harness(this);
     this._logger = logger('app:routes:auth');
+    this._queue = mqtt;
 
     routes.post('/login', this.login);
     routes.get('/login', this.loginPage);
+    routes.get('/queue', this.queueTest);
+  }
+
+  async queueTest(req)
+  {
+
+    const op = req.query.op;
+    const topic = req.query.topic;
+    const msg = req.query.msg;
+
+    if (op == 'sub') {
+      await this._queue.sub(topic, m => console.log(m.toString()));
+      return { ok: true };
+    }
+    else {
+      this._queue.pub(topic, msg);
+      return { ok: true };
+    }
+
   }
 
 

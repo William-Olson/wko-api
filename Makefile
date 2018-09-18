@@ -6,8 +6,9 @@ default:
 	@make -s log-msg
 
 run:
-	docker-compose up -d es kibana db api haproxy
+	docker-compose up -d es db api haproxy
 	docker-compose run --no-deps --rm db-ops npm start
+	docker-compose up -d job kibana
 
 build:
 	node ./backend/versioner.js
@@ -25,4 +26,5 @@ log-msg:
 	@echo ' docker-compose logs -f db-ops'
 	@echo ' docker-compose logs -f db'
 	@echo ' docker-compose logs -f haproxy'
+	@echo ' docker-compose logs -f job'
 	@echo

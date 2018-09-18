@@ -5,6 +5,7 @@ module.exports = Object.assign(
   require('./server'),
   require('./db'),
   require('./es'),
+  require('./mqtt'),
 
   // build info
   { build: require('./build-info.json') },
