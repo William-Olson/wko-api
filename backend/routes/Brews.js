@@ -14,6 +14,7 @@ module.exports = class BrewsRoutes
 
     routes.get('/', this.getBrews);
     routes.get('/search', this.search);
+    routes.get('/sensors', this.getBrewSensors);
     routes.get('/:id/notes', this.getBrewNoteByBrewId);
     routes.get('/:id', this.getBrewById);
 
@@ -100,12 +101,19 @@ module.exports = class BrewsRoutes
     return await this._db.brews.createNewBrewNote(data);
 
   }
-  
+
   async search(req)
   {
 
     const term = req.query.term;
     return await this._es.brews.search(term);
+
+  }
+
+  async getBrewSensors()
+  {
+
+    return await this._db.brew_sensor.getAll();
 
   }
 

@@ -78,7 +78,7 @@ module.exports = class TiltJob {
   _parseTiltData(fields)
   {
 
-    const sensor = { };
+    const sensor = { type: 'tilt' };
     const sensorReading = { };
 
     // handle timestamp parsing, format: 2018-9-18 13:42:01
