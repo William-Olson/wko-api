@@ -33,8 +33,17 @@ module.exports = class MqttClient {
   sub(topic, handler)
   {
 
+    // add the handler
+    const h = this._handlers.get(topic);
+    if (!h) {
+      this._handlers.set(topic, [ handler ]);
+    }
+    else {
+      h.push(handler);
+      this._handlers.set(topic, h);
+    }
+
     this._listenTo(topic)
-      .then(() => this._handlers.set(topic, handler))
       .catch(e => {
         this._logger.error(`Error registering topic ${topic}`);
         throw e;
@@ -46,17 +55,28 @@ module.exports = class MqttClient {
   {
 
     this._client.on('message', async (topic, message) => {
-        const h = this._handlers.get(topic);
+        const handlers = this._handlers.get(topic);
 
-        if (!h) {
-          setTimeout(() => {
+        if (!handlers || !handlers.length) {
+          this._logger.error(`Missing handler for topic: ${topic}, (missed: ${message})`);
+          setTimeout(() => { // retry 2 min later
+            this._logger.log(`republishing to ${topic}: ${message}`);
             this.pub(topic, message);
-          }, 60000 * 2)
-          this._logger.error(`Missing handler for topic: ${topic}`);
-          return;
+          }, 60000 * 2);
         }
 
-        await h(message);
+        try {
+
+          // let each handler process the message
+          for (const h of handlers) {
+            await h(message);
+          }
+
+        }
+        catch (e) {
+          this._logger.error(`Handler for topic ${topic} failed`);
+          this._logger.error(e);
+        }
 
     });
 

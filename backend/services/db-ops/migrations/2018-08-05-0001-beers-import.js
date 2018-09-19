@@ -39,7 +39,7 @@ module.exports = {
                 description: 'Medium bodied dark beer. Slightly tart with notes of roasty malt and fruity esters.'
             }
         ]);
-    
+
     logger.log('beers imported');
 
     await db.knex.table('beer_type_tags')
