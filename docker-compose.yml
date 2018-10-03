@@ -15,22 +15,13 @@ job:
   - SERVICES=es,mqtt,jobs,server
   - 'DB_URL=postgres://dev:dev@db:5432/dev'
   - 'ES_URL=http://es:9200'
-  - 'QUEUE_URL=mqtt://mqtt:1883'
+  - 'MQTT_URL=mqtt://mqtt:1883'
   volumes:
     - ./backend/:/opt/backend/container
   links:
     - db
     - es
     - mqtt
-
-mqtt:
-  image: erlio/docker-vernemq
-  environment:
-    - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
-    - VIRTUAL_HOST=mqtt*,https://mqtt*
-  ports:
-    - 1883:1883
-    - 8080:8080
 
 api:
   image: willko/wko-api:latest
@@ -43,7 +34,7 @@ api:
     - 'ES_URL=http://es:9200'
     - VIRTUAL_HOST=*,https://*
     - JWT_SECRET=dev-secret
-    - 'QUEUE_URL=mqtt://mqtt:1883'
+    - 'MQTT_URL=mqtt://mqtt:1883'
   ports:
     - 1337
   volumes:
@@ -94,3 +85,11 @@ kibana:
     - es
   ports:
     - 5601:5601
+
+mqtt:
+  image: erlio/docker-vernemq:1.5.0
+  environment:
+    - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
+    - VIRTUAL_HOST=mqtt*,https://mqtt*
+  ports:
+    - 1883:1883

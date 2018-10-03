@@ -1,5 +1,5 @@
 module.exports = {
   mqtt: {
-    host: process.env.QUEUE_URL || '127.0.0.1:1883'
+    host: process.env.MQTT_URL || '127.0.0.1:1883'
   }
 };
