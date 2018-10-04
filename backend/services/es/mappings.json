@@ -48,5 +48,15 @@
         }
       }
     }
+  },
+  "brew_sensors": {
+    "default": {
+      "properties": {
+        "name": {
+          "type":     "text",
+          "analyzer": "autocomplete"
+        }
+      }
+    }
   }
 }

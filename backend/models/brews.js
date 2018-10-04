@@ -233,4 +233,14 @@ module.exports = class BrewsApi {
 
   }
 
+  async getAllBrewNotes(limit = 20, offset = 0)
+  {
+
+    return await this._knex
+      .table('brew_notes')
+      .limit(limit)
+      .offset(offset);
+
+  }
+
 }

@@ -1,7 +1,8 @@
 const jobPath = '../../jobs';
 
 const jobFiles = [
-  'Tilt'
+  'Tilt',
+  'ReIndex'
 ];
 
 module.exports = class JobLoader {

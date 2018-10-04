@@ -107,7 +107,7 @@ module.exports = class RecipesApi {
         cost: data.cost,
         type_id: data.type_id
       }).returning('id');
-    
+
     if (!id) {
       throw new Error('Couldn\'t create ingredient');
     }
@@ -139,6 +139,14 @@ module.exports = class RecipesApi {
 
     return await this._knex.table('ingredients')
       .whereIn('id', ids);
+
+  }
+
+  async getAllIngredients(limit = 20, offset = 0) {
+
+    return await this._knex.table('ingredients')
+      .limit(limit)
+      .offset(offset);
 
   }
 

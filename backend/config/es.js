@@ -7,6 +7,7 @@ const TYPES = [
   Immutable.Map({ index: 'ingredients', model: 'ingredients' }),
   Immutable.Map({ index: 'beer_styles', model: 'beer_types' }),
   Immutable.Map({ index: 'brew_notes', model: 'brew_notes' }),
+  Immutable.Map({ index: 'brew_sensors', model: 'brew_sensor' }),
 ];
 
 module.exports = {
