@@ -61,59 +61,59 @@ module.exports = class ReIndexJob {
 
     // beers
     const beers = await this._db.beers.getAll(maxRowsToIndex);
-    const beerIndex = config.getIndexForModel('beers');
+    const beerIndex = this._config.getIndexForModel('beers');
     for (const b of beers) {
-      await es.index(beerIndex, b);
+      await this._es.index(beerIndex, b);
     }
-    logger.log(`${beers.length} beers indexed`);
+    this._logger.log(`${beers.length} beers indexed`);
 
     // brews
     const brews = await this._db.brews.getAll(maxRowsToIndex);
-    const brewIndex = config.getIndexForModel('brews');
+    const brewIndex = this._config.getIndexForModel('brews');
     for (const b of brews) {
-      await es.index(brewIndex, b);
+      await this._es.index(brewIndex, b);
     }
-    logger.log(`${brews.length} brews indexed`);
+    this._logger.log(`${brews.length} brews indexed`);
 
     // recipes
     const recipes = await this._db.recipes.getAll(maxRowsToIndex);
-    const recipeIndex = config.getIndexForModel('recipes');
+    const recipeIndex = this._config.getIndexForModel('recipes');
     for (const r of recipes) {
-      await es.index(recipeIndex, r);
+      await this._es.index(recipeIndex, r);
     }
-    logger.log(`${recipes.length} recipes indexed`);
+    this._logger.log(`${recipes.length} recipes indexed`);
 
     // ingredients
     const ingredients = await this._db.recipes.getAllIngredients(maxRowsToIndex);
-    const ingredientIndex = config.getIndexForModel('ingredients');
+    const ingredientIndex = this._config.getIndexForModel('ingredients');
     for (const i of ingredients) {
-      await es.index(ingredientIndex, i);
+      await this._es.index(ingredientIndex, i);
     }
-    logger.log(`${ingredients.length} ingredients indexed`);
+    this._logger.log(`${ingredients.length} ingredients indexed`);
 
     // beer styles
     const styles = await this._db.beers.getAllStyles();
-    const beerStyleIndex = config.getIndexForModel('beer_types');
+    const beerStyleIndex = this._config.getIndexForModel('beer_types');
     for (const s of styles) {
-      await es.index(beerStyleIndex, s);
+      await this._es.index(beerStyleIndex, s);
     }
-    logger.log(`${styles.length} beer_styles indexed`);
+    this._logger.log(`${styles.length} beer_styles indexed`);
 
     // brew notes
     const brewNotes = await this._db.brews.getAllBrewNotes(maxRowsToIndex);
-    const brewNoteIndex = config.getIndexForModel('brew_notes');
+    const brewNoteIndex = this._config.getIndexForModel('brew_notes');
     for (const n of brewNotes) {
-      await es.index(brewNoteIndex, n);
+      await this._es.index(brewNoteIndex, n);
     }
-    logger.log(`${brewNotes.length} brew_notes indexed`);
+    this._logger.log(`${brewNotes.length} brew_notes indexed`);
 
     // brew_sensors
-    const brewSensors = await this._db.brew_sensors.getAll(maxRowsToIndex);
-    const brewSensorIndex = config.getIndexForModel('brew_sensor');
+    const brewSensors = await this._db.brew_sensor.getAll(maxRowsToIndex);
+    const brewSensorIndex = this._config.getIndexForModel('brew_sensor');
     for (const sensor of brewSensors) {
-      await es.index(brewSensorIndex, sensor);
+      await this._es.index(brewSensorIndex, sensor);
     }
-    logger.log(`${brewSensors.length} brew_sensors indexed`);
+    this._logger.log(`${brewSensors.length} brew_sensors indexed`);
 
   }
 
