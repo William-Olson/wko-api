@@ -1,6 +1,7 @@
 const whiteList = [
   /.*localhost.*/,
-  /.*wko[.].*/
+  /.*wko[.].*/,
+  /.*beer[.].*/
 ];
 
 module.exports = function acceptedSites(req, callback)
