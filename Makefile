@@ -5,6 +5,17 @@ default:
 	@echo 'All Done.'
 	@make -s log-msg
 
+# usage:
+# PW=dev RESTORE_FILE=../backup.sql make restore
+restore:
+	docker-compose up -d db
+	timeout 15
+	PGPASSWORD=$(PW) psql -U dev --set ON_ERROR_STOP=on -f $(RESTORE_FILE) -h localhost dev
+	docker-compose up -d es api haproxy
+	docker-compose run --no-deps --rm db-ops npm start
+	docker-compose up -d job kibana
+	@make -s log-msg
+
 run:
 	docker-compose up -d es db api haproxy
 	docker-compose run --no-deps --rm db-ops npm start
