@@ -21,7 +21,8 @@ module.exports = class BrewsApi {
 
     return await this._knex.from('brews')
       .limit(limit)
-      .offset(offset);
+      .offset(offset)
+      .orderBy('id', 'desc');
 
   }
 
